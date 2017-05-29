@@ -54,4 +54,22 @@ public class BytesComparator implements Comparator<byte[]> {
 
     return 0;
   }
+
+  public static int compare(byte[] o1, int len1, byte[] o2, int len2){
+    if (len1 < len2){
+      return -1;
+    }else if (len1 > len2){
+      return 1;
+    }
+
+    for (int i=0; i < len2; i++){
+      if (o1[i] < o2[i]) {
+        return -1;
+      }else if (o1[i] > o2[i]){
+        return 1;
+      }
+    }
+
+    return 0;
+  }
 }

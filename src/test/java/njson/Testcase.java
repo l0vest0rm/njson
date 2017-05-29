@@ -45,13 +45,20 @@ public class Testcase {
       System.out.format("list instanceof other\n");
     }
 
-    Serializer packer = new Serializer();
-    byte[] bytes = packer.packJsonObject(map).toBytes();
+    Serializer ser = new Serializer();
+    byte[] bytes = ser.packJsonObject(map).toBytes();
     System.out.format("jsonLen:%d,packLen:%d\n", json.length(), bytes.length);
     for (int j=0; j<bytes.length; j++) {
       System.out.format("%02X ", bytes[j]);
     }
     System.out.println();
+
+    Deserializer deser = new Deserializer();
+    deser.init(bytes);
+    System.out.format("int:%d\n", deser.getInt("int"));
+    System.out.format("float:%f\n", deser.getFloat("float"));
+    System.out.format("boolean:%b\n", deser.getBoolean("boolean"));
+    System.out.format("string:%s\n", deser.getString("string"));
 
     String key = "key中国";
     bytes = key.getBytes();

@@ -432,7 +432,7 @@ public class BytesOp {
   }
 
   void putDouble(double x) {
-    putDouble(nextPutIndex(4), x);
+    putDouble(nextPutIndex(8), x);
   }
 
   static void checkBounds(int off, int len, int size) { // package-private
@@ -474,6 +474,12 @@ public class BytesOp {
     return position;
   }
 
+  public final void skip(int len) {
+    if ((position + len > end) || (position + len < offset))
+      throw new IllegalArgumentException();
+    position += len;
+  }
+
   public final int offset() {
     return offset;
   }
@@ -491,8 +497,14 @@ public class BytesOp {
   public byte[] getBytes(int length) {
     if (length > remaining())
       throw new BufferOverflowException();
+    return getBytes(nextGetIndex(length), length);
+  }
+
+  public byte[] getBytes(int pos, int length) {
+    if (pos + length > end)
+      throw new BufferOverflowException();
     byte[] dst = new byte[length];
-    System.arraycopy(bs, nextGetIndex(length), dst, 0, length);
+    System.arraycopy(bs, pos, dst, 0, length);
     return dst;
   }
 

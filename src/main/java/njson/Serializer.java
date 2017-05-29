@@ -526,7 +526,7 @@ public class Serializer {
       packObject(v);
     }
 
-    buffer.putInt(position, buffer.position()-position);
+    buffer.putInt(position, buffer.position()-position - 4);
 
     return this;
   }
@@ -549,7 +549,7 @@ public class Serializer {
       packObject(map.get(new String(key)));
     }
 
-    buffer.putInt(position, buffer.position()-position);
+    buffer.putInt(position, buffer.position()-position - 4);
 
     return this;
   }
@@ -557,31 +557,35 @@ public class Serializer {
   public Serializer packObject(Object v) throws Exception {
     if (v == null) {
       packNil();
-    }else if (v instanceof Integer) {
-      packInt((Integer) v);
-    }
-    else if (v instanceof String) {
+    }else if (v instanceof String) {
       packString((String) v);
-    }
-    else if (v instanceof Float) {
-      packFloat((Float) v);
-    }
-    else if (v instanceof Long) {
-      packLong((Long) v);
-    }
-    else if (v instanceof Double) {
-      packDouble((Double) v);
-    }
-    else if (v instanceof BigInteger) {
+    }else if (v instanceof Integer) {
+      packInt((int) v);
+    }else if (v instanceof Long) {
+      packLong((long) v);
+    }else if (v instanceof Float) {
+      if ((float)v == (float)(int)(float)v){
+        packInt((int) v);
+      }else {
+        packFloat((float) v);
+      }
+    }else if (v instanceof Double) {
+      if ((double)v == (double)(int)(double)v){
+        packInt((int)(double) v);
+      }else if ((double)v == (double)(long)(double)v) {
+        packLong((long)(double) v);
+      }else if ((double)v == (double)(float)(double)v){
+        packFloat((float)(double) v);
+      }else{
+        packDouble((double)v);
+      }
+    }else if (v instanceof BigInteger) {
       packBigInteger((BigInteger) v);
-    }
-    else if (v instanceof Boolean) {
+    }else if (v instanceof Boolean) {
       packBoolean((Boolean) v);
-    }
-    else if (v instanceof List) {
+    }else if (v instanceof List) {
       packList((List<Object>) v);
-    }
-    else if (v instanceof Map) {
+    }else if (v instanceof Map) {
       packMap((Map<String, Object>) v);
     }
     else {
