@@ -1,14 +1,22 @@
 package njson;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+
 public class Deserializer {
+  private static final int TMP_BUFF_SISZE = 1024*1024;
   /**
    * Current internal buffer.
    */
   protected BytesOp buffer;
   int delimiter = '.';
+  byte[] tmpBytes;
 
   public Deserializer(){
     buffer = new BytesOp();
+    tmpBytes = new byte[TMP_BUFF_SISZE];
   }
 
   public void init(byte[] bytes){
@@ -90,8 +98,11 @@ public class Deserializer {
         throw new FormatException(f);
     }
 
-    byte[] bytes = buffer.getBytes(pos, len);
-    return new String(bytes);
+    if (len > 0){
+      return buffer.getString(pos, len);
+    }else{
+      return "";
+    }
   }
 
   private int getInt(int pos) throws Exception {
@@ -308,7 +319,6 @@ public class Deserializer {
     int comp = 0;
     byte[] keyBytes = key.getBytes();
     int end = buffer.position()+len;
-    byte[] tmpBytes = new byte[1024];
     while (buffer.position() < end) {
       //key
       byte b = buffer.get();
@@ -424,108 +434,113 @@ public class Deserializer {
     }
   }
 
-/*
-  public Object unpack() throws Exception {
-    Object obj = null;
-    int len = 0;
+  public Object unpackJsonObject() throws Exception {
+    int len;
     byte b = buffer.get();
     Format f = Format.valueOf(b);
     switch (f) {
-      case FIXMAP: {
-        obj = new HashMap<String, Object>();
-        int mapLen = b & 0x0f;
-        count += mapLen * 2;
-        break;
-      }
-      case MAP16:{
-
-      }
-      case FIXARRAY: {
-        int arrayLen = b & 0x0f;
-        count += arrayLen;
-        break;
-      }
-      case FIXSTR: {
-        int strLen = b & 0x1f;
-        skipPayload(strLen);
-        break;
-      }
-      case INT8:
-      case UINT8:
-        skipPayload(1);
-        break;
-      case INT16:
-      case UINT16:
-        skipPayload(2);
-        break;
-      case INT32:
-      case UINT32:
-      case FLOAT32:
-        skipPayload(4);
-        break;
-      case INT64:
-      case UINT64:
-      case FLOAT64:
-        skipPayload(8);
-        break;
-      case BIN8:
-      case STR8:
-        skipPayload(readNextLength8());
-        break;
-      case BIN16:
-      case STR16:
-        skipPayload(readNextLength16());
-        break;
-      case BIN32:
-      case STR32:
-        skipPayload(readNextLength32());
-        break;
-      case FIXEXT1:
-        skipPayload(2);
-        break;
-      case FIXEXT2:
-        skipPayload(3);
-        break;
-      case FIXEXT4:
-        skipPayload(5);
-        break;
-      case FIXEXT8:
-        skipPayload(9);
-        break;
-      case FIXEXT16:
-        skipPayload(17);
-        break;
-      case EXT8:
-        skipPayload(readNextLength8() + 1);
-        break;
-      case EXT16:
-        skipPayload(readNextLength16() + 1);
-        break;
-      case EXT32:
-        skipPayload(readNextLength32() + 1);
-        break;
-      case ARRAY16:
-        count += readNextLength16();
-        break;
-      case ARRAY32:
-        count += readNextLength32();
-        break;
+      case FIXMAP:
+        len = b & 0x0f;
+        return unpackMap(len);
       case MAP16:
-        count += readNextLength16() * 2;
-        break;
+        len = buffer.getShort();
+        return unpackMap(len);
       case MAP32:
-        count += readNextLength32() * 2; // TODO check int overflow
-        break;
-      case NEVER_USED:
-        throw new Exception("Encountered 0xC1 \"NEVER_USED\" byte");
+        len = buffer.getInt();
+        return unpackMap(len);
+      case FIXARRAY:
+        len = b & 0x0f;
+        return unpackArray(len);
+      case ARRAY16:
+        len = buffer.getShort();
+        return unpackArray(len);
+      case ARRAY32:
+        len = buffer.getInt();
+        return unpackArray(len);
+      default:
+        throw new FormatException(f);
     }
   }
 
-  public void unpackMap(Map<String, Object> map, int len) throws Exception {
+  public Object unpackValue() throws Exception {
+    int len;
+    byte b = buffer.get();
+    Format f = Format.valueOf(b);
+    switch(f) {
+      case FIXSTR:
+        len = b & 0x1f;
+        return buffer.getString(len);
+      case STR8:
+        len = buffer.get();
+        return buffer.getString(len);
+      case STR16:
+        len = buffer.getShort();
+        return buffer.getString(len);
+      case STR32:
+        len = buffer.getInt();
+        return buffer.getString(len);
+      case BIN8:
+        len = buffer.get();
+        return buffer.getBytes(len);
+      case BIN16:
+        len = buffer.getShort();
+        return buffer.getBytes(len);
+      case BIN32:
+        len = buffer.getInt();
+        return buffer.getBytes(len);
+      case POSFIXINT:
+        return b & 0x7f;
+      case NEGFIXINT:
+        return -(b & 0x3f);
+      case UINT8:
+      case INT8:
+        return buffer.get();
+      case UINT16:
+      case INT16:
+        return buffer.getShort();
+      case UINT32:
+      case INT32:
+        return buffer.getInt();
+      case UINT64:
+      case INT64:
+        return buffer.getLong();
+      case FLOAT32:
+        return buffer.getFloat();
+      case FLOAT64:
+        return buffer.getDouble();
+      case BOOLEAN:
+        return b == Code.TRUE;
+      case NIL:
+        return null;
+      case FIXMAP:
+        len = b & 0x0f;
+        return unpackMap(len);
+      case MAP16:
+        len = buffer.getShort();
+        return unpackMap(len);
+      case MAP32:
+        len = buffer.getInt();
+        return unpackMap(len);
+      case FIXARRAY:
+        len = b & 0x0f;
+        return unpackArray(len);
+      case ARRAY16:
+        len = buffer.getShort();
+        return unpackArray(len);
+      case ARRAY32:
+        len = buffer.getInt();
+        return unpackArray(len);
+      default:
+        throw new FormatException(f);
+    }
+  }
+
+  private Map<String, Object> unpackMap(int len) throws Exception {
     int strLen = 0;
     int end = buffer.position()+len;
-    String key = "";
-    byte[] tmpBytes = new byte[1024];
+    String key = null;
+    Object value = null;
+    Map<String, Object> map = new HashMap<>();
     while (buffer.position() < end) {
       //key
       byte b = buffer.get();
@@ -544,14 +559,34 @@ public class Deserializer {
           strLen = buffer.getInt();
           break;
         default:
-          throw new Exception("unknown map key format");
+          throw new FormatException(f);
       }
 
       if (strLen > 0){
-        buffer.getBytes(tmpBytes, strLen);
+        key = buffer.getString(strLen);
+      }else{
+        key = "";
       }
 
       //value
+      value = unpackValue();
+      map.put(key, value);
     }
-  }*/
+
+    return map;
+  }
+
+  private List<Object> unpackArray(int len) throws Exception {
+    int strLen = 0;
+    int end = buffer.position()+len;
+    Object value = null;
+    List<Object> list = new ArrayList<>();
+    while (buffer.position() < end) {
+      //value
+      value = unpackValue();
+      list.add(value);
+    }
+
+    return list;
+  }
 }

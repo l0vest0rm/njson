@@ -60,6 +60,10 @@ public class Testcase {
     System.out.format("boolean:%b\n", deser.getBoolean("boolean"));
     System.out.format("string:%s\n", deser.getString("string"));
 
+    deser.init(bytes);
+    Object obj = deser.unpackJsonObject();
+    System.out.format("toJson:%s\n", gson.toJson(obj));
+
     String key = "key中国";
     bytes = key.getBytes();
     System.out.format("strlen:%d,byteslen:%d\n", key.length(), bytes.length);

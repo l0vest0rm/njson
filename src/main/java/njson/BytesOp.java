@@ -508,6 +508,16 @@ public class BytesOp {
     return dst;
   }
 
+  public String getString(int length) {
+    return getString(nextGetIndex(length), length);
+  }
+
+  public String getString(int pos, int length) {
+    if (pos + length > end)
+      throw new BufferOverflowException();
+    return new String(bs, pos, length);
+  }
+
   public void put(byte[] src, int offset, int length) {
     checkBounds(offset, length, src.length);
     if (length > remaining())
