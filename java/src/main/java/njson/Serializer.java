@@ -599,4 +599,12 @@ public class Serializer {
     return buffer.toBytes();
   }
 
+  public void toBytes(byte[] dst) {
+    toBytes(dst, 0);
+  }
+
+  public void toBytes(byte[] dst, int dstOffset) {
+    buffer.toBytes(dst, dstOffset);
+  }
+
 }

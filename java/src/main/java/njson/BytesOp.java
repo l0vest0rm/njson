@@ -474,6 +474,10 @@ public class BytesOp {
     return position;
   }
 
+  public int length() {
+    return position - offset;
+  }
+
   public final void skip(int len) {
     if ((position + len > end) || (position + len < offset))
       throw new IllegalArgumentException();
@@ -536,5 +540,7 @@ public class BytesOp {
     return bytes;
   }
 
-
+  public void toBytes(byte[] dst, int dstOffset) {
+    System.arraycopy(bs, offset, dst, dstOffset, position-offset);
+  }
 }
