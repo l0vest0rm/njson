@@ -314,6 +314,15 @@ public class Deserializer {
     return getBoolean(pos);
   }
 
+  public Object getObject(String key) throws Exception {
+    int pos = getValuePos(key);
+    if (pos < 0){
+      throw new NotFoundException(key);
+    }
+
+    return unpackValue(pos);
+  }
+
   public int getMapValuePos(String key, int len) throws Exception {
     int strLen = 0;
     int comp = 0;
@@ -462,8 +471,13 @@ public class Deserializer {
     }
   }
 
-  public Object unpackValue() throws Exception {
+  private Object unpackValue() throws Exception {
+    return unpackValue(buffer.position());
+  }
+
+  private Object unpackValue(int pos) throws Exception {
     int len;
+    buffer.position(pos);
     byte b = buffer.get();
     Format f = Format.valueOf(b);
     switch(f) {

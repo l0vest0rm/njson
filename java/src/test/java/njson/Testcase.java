@@ -59,6 +59,7 @@ public class Testcase {
     System.out.format("float:%f\n", deser.getFloat("float"));
     System.out.format("boolean:%b\n", deser.getBoolean("boolean"));
     System.out.format("string:%s\n", deser.getString("string"));
+    System.out.format("object:%s\n", gson.toJson(deser.getObject("object")));
 
     deser.init(bytes);
     Object obj = deser.unpackJsonObject();
