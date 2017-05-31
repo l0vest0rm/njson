@@ -57,10 +57,10 @@ public class Serializer {
   }
 
   private void ensureCapacity(int minimumSize)
-      throws Exception
+      throws IOException
   {
     if (minimumSize > buffer.remaining()){
-      throw new Exception("not enough space");
+      throw new IOException("not enough space");
     }
   }
 
