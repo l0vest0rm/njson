@@ -2,11 +2,13 @@ package njson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 public class Deserializer {
   private static final int TMP_BUFF_SISZE = 1024*1024;
+  private static final int DEFAULT_INITIAL_CAPACITY = 16;
+
   /**
    * Current internal buffer.
    */
@@ -562,7 +564,7 @@ public class Deserializer {
     int end = buffer.position()+len;
     String key = null;
     Object value = null;
-    Map<String, Object> map = new HashMap<>();
+    Map<String, Object> map = new HashMap<>(DEFAULT_INITIAL_CAPACITY);
     while (buffer.position() < end) {
       //key
       byte b = buffer.get();
@@ -598,11 +600,11 @@ public class Deserializer {
     return map;
   }
 
-  private List<Object> unpackArray(int len) throws Exception {
+  private Collection<Object> unpackArray(int len) throws Exception {
     int strLen = 0;
     int end = buffer.position()+len;
     Object value = null;
-    List<Object> list = new ArrayList<>();
+    Collection<Object> list = new ArrayList<>();
     while (buffer.position() < end) {
       //value
       value = unpackValue();
