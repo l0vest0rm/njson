@@ -20,6 +20,8 @@ package njson;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -84,5 +86,31 @@ public class Testcase {
       System.out.format("%s,", new String(bytes));
     }
     System.out.println();
+  }
+
+  @Test
+  void testLongJson() throws Exception {
+    String filePath = "data/test.json";
+    String json = new String(Files.readAllBytes(Paths.get(filePath)));
+    Gson gson = new Gson();
+    Map<String, Object> map = gson.fromJson(json, Map.class);
+    //System.out.format("toJson:%s\n", gson.toJson(map));
+    Serializer ser = new Serializer();
+    byte[] bytes = ser.packJsonObject(map).toBytes();
+    for (int j=0; j<bytes.length; j++) {
+      System.out.format("%02X ", bytes[j]);
+    }
+    System.out.println();
+    Deserializer deser = new Deserializer();
+    deser.init(bytes);
+    Object obj = deser.unpackJsonObject();
+    System.out.format("toJson2:%s\n", gson.toJson(obj));
+  }
+
+  @Test
+  void testByte() throws Exception {
+    int len = 123;
+    byte b = (byte)len;
+    System.out.format("len:%d\n", (b & 0xff));
   }
 }

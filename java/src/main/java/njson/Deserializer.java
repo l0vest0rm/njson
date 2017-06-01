@@ -41,6 +41,14 @@ public class Deserializer {
     buffer.position(buffer.offset()+Code.HEADER_LENGTH);
   }
 
+  private int length(byte len){
+    return len & 0xff;
+  }
+
+  private int length(short len){
+    return len & 0xffff;
+  }
+
   public int getValuePos(String key) throws Exception {
     resetPostion();
     //int pos = key.indexOf(delimiter);
@@ -54,7 +62,7 @@ public class Deserializer {
         break;
       }
       case MAP16:{
-        len = buffer.getShort();
+        len = length(buffer.getShort());
         break;
       }
       case MAP32:{
@@ -78,12 +86,12 @@ public class Deserializer {
         break;
       }
       case STR8:{
-        len = buffer.get(pos);
+        len = length(buffer.get(pos));
         pos += 1;
         break;
       }
       case STR16:{
-        len = buffer.getShort(pos);
+        len = length(buffer.getShort(pos));
         pos += 2;
         break;
       }
@@ -337,10 +345,10 @@ public class Deserializer {
           strLen = b & 0x1f;
           break;
         case STR8:
-          strLen = buffer.get();
+          strLen = length(buffer.get());
           break;
         case STR16:
-          strLen = buffer.getShort();
+          strLen = length(buffer.getShort());
           break;
         case STR32:
           strLen = buffer.getInt();
@@ -386,13 +394,13 @@ public class Deserializer {
         break;
       case STR8:
       case BIN8:
-        skiplen = buffer.get();
+        skiplen = length(buffer.get());
         break;
       case STR16:
       case BIN16:
       case MAP16:
       case ARRAY16:
-        skiplen = buffer.getShort();
+        skiplen = length(buffer.getShort());
         break;
       case STR32:
       case BIN32:
@@ -452,7 +460,7 @@ public class Deserializer {
         len = b & 0x0f;
         return unpackMap(len);
       case MAP16:
-        len = buffer.getShort();
+        len = length(buffer.getShort());
         return unpackMap(len);
       case MAP32:
         len = buffer.getInt();
@@ -461,7 +469,7 @@ public class Deserializer {
         len = b & 0x0f;
         return unpackArray(len);
       case ARRAY16:
-        len = buffer.getShort();
+        len = length(buffer.getShort());
         return unpackArray(len);
       case ARRAY32:
         len = buffer.getInt();
@@ -485,19 +493,19 @@ public class Deserializer {
         len = b & 0x1f;
         return buffer.getString(len);
       case STR8:
-        len = buffer.get();
+        len = length(buffer.get());
         return buffer.getString(len);
       case STR16:
-        len = buffer.getShort();
+        len = length(buffer.getShort());
         return buffer.getString(len);
       case STR32:
         len = buffer.getInt();
         return buffer.getString(len);
       case BIN8:
-        len = buffer.get();
+        len = length(buffer.get());
         return buffer.getBytes(len);
       case BIN16:
-        len = buffer.getShort();
+        len = length(buffer.getShort());
         return buffer.getBytes(len);
       case BIN32:
         len = buffer.getInt();
@@ -530,7 +538,7 @@ public class Deserializer {
         len = b & 0x0f;
         return unpackMap(len);
       case MAP16:
-        len = buffer.getShort();
+        len = length(buffer.getShort());
         return unpackMap(len);
       case MAP32:
         len = buffer.getInt();
@@ -539,7 +547,7 @@ public class Deserializer {
         len = b & 0x0f;
         return unpackArray(len);
       case ARRAY16:
-        len = buffer.getShort();
+        len = length(buffer.getShort());
         return unpackArray(len);
       case ARRAY32:
         len = buffer.getInt();
@@ -564,10 +572,10 @@ public class Deserializer {
           strLen = b & 0x1f;
           break;
         case STR8:
-          strLen = buffer.get();
+          strLen = length(buffer.get());
           break;
         case STR16:
-          strLen = buffer.getShort();
+          strLen = length(buffer.getShort());
           break;
         case STR32:
           strLen = buffer.getInt();

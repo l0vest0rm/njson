@@ -396,20 +396,8 @@ public class Serializer {
    * @throws IOException when underlying output throws IOException
    */
   public Serializer packString(String s)
-      throws IOException
-  {
-    if (s.length() <= 0) {
-      packRawStringHeader(0);
-      return this;
-    }
-
-    byte[] bytes = s.getBytes();
-    // Write the length and payload of small string to the buffer so that it avoids an extra flush of buffer
-    packRawStringHeader(bytes.length);
-    ensureCapacity(bytes.length);
-    buffer.put(bytes);
-
-    return this;
+      throws IOException {
+    return packString(s.getBytes());
   }
 
   public Serializer packString(byte[] bytes)

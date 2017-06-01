@@ -1,2 +1,6 @@
 
 *.iml
+
+java/data/test.json
+
+java/deploy.sh
