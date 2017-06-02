@@ -20,36 +20,33 @@ package njson;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.charset.MalformedInputException;
 import java.util.*;
 
 import static njson.Code.*;
 
 public class Serializer {
-  public static final int INIT_BUFF_SIZE = 1024*1024;
+  private static final int INIT_BUFF_SIZE = 1024*1024;
+
+  private byte[] bytes;
 
   /**
    * Current internal buffer.
    */
-  protected BytesOp buffer;
+  private BytesOp buffer;
 
   public Serializer()
   {
     this(INIT_BUFF_SIZE);
   }
 
-  /**
-   * Create an MessagePacker that outputs the packed data to the given {@link org.msgpack.core.buffer.MessageBufferOutput}.
-   * This method is available for subclasses to override. Use MessagePack.PackerConfig.newPacker method to instanciate this implementation.
-   *
-   * @param out MessageBufferOutput. Use {@link org.msgpack.core.buffer.OutputStreamBufferOutput}, {@link org.msgpack.core.buffer.ChannelBufferOutput} or
-   * your own implementation of {@link org.msgpack.core.buffer.MessageBufferOutput} interface.
-   */
   public Serializer(int minimumSize)
   {
     byte[] bytes = new byte[minimumSize];
     buffer = new BytesOp();
     buffer.init(bytes);
     buffer.setBigEndian(true);
+    this.bytes = new byte[minimumSize];
   }
 
   public void init(){
@@ -138,6 +135,66 @@ public class Serializer {
   {
     ensureCapacity(8);
     buffer.putLong(v);
+  }
+
+  public static int encodeUTF8(String sa, int sp, int len, byte[] da) throws IOException {
+    int sl = sp + len;
+    int dp = 0;
+    int dlASCII = dp + Math.min(len, da.length);
+
+    // ASCII only optimized loop
+    while (dp < dlASCII && sa.charAt(sp) < '\u0080') {
+      da[dp++] = (byte) sa.charAt(sp++);
+    }
+
+    while (sp < sl) {
+      char c = sa.charAt(sp++);
+      if (c < 0x80) {
+        // Have at most seven bits
+        da[dp++] = (byte) c;
+      } else if (c < 0x800) {
+        // 2 bytes, 11 bits
+        da[dp++] = (byte) (0xc0 | (c >> 6));
+        da[dp++] = (byte) (0x80 | (c & 0x3f));
+      } else if (c >= '\uD800' && c < ('\uDFFF' + 1)) { //Character.isSurrogate(c) but 1.7
+        final int uc;
+        int ip = sp - 1;
+        if (Character.isHighSurrogate(c)) {
+          if (sl - ip < 2) {
+            uc = -1;
+          } else {
+            char d = sa.charAt(ip + 1);
+            if (Character.isLowSurrogate(d)) {
+              uc = Character.toCodePoint(c, d);
+            } else {
+              throw new IOException("encodeUTF8 error", new MalformedInputException(1));
+            }
+          }
+        } else {
+          if (Character.isLowSurrogate(c)) {
+            throw new IOException("encodeUTF8 error", new MalformedInputException(1));
+          } else {
+            uc = c;
+          }
+        }
+
+        if (uc < 0) {
+          da[dp++] = (byte) '?';
+        } else {
+          da[dp++] = (byte) (0xf0 | ((uc >> 18)));
+          da[dp++] = (byte) (0x80 | ((uc >> 12) & 0x3f));
+          da[dp++] = (byte) (0x80 | ((uc >> 6) & 0x3f));
+          da[dp++] = (byte) (0x80 | (uc & 0x3f));
+          sp++; // 2 chars
+        }
+      } else {
+        // 3 bytes, 16 bits
+        da[dp++] = (byte) (0xe0 | ((c >> 12)));
+        da[dp++] = (byte) (0x80 | ((c >> 6) & 0x3f));
+        da[dp++] = (byte) (0x80 | (c & 0x3f));
+      }
+    }
+    return dp;
   }
 
 
@@ -397,7 +454,17 @@ public class Serializer {
    */
   public Serializer packString(String s)
       throws IOException {
-    return packString(s.getBytes());
+    int len = 0;
+    if (s.length() ==0){
+      packRawStringHeader(0);
+      return this;
+    }
+
+    len = encodeUTF8(s, 0, s.length(), bytes);
+    packRawStringHeader(len);
+    ensureCapacity(len);
+    buffer.put(bytes, 0, len);
+    return this;
   }
 
   public Serializer packString(byte[] bytes)
@@ -528,16 +595,9 @@ public class Serializer {
     }
 
     int position = reserveMapHeader();
-    Set<String> keySet = map.keySet();
-    List<byte[]> bytesList = new ArrayList<>();
-    for (String key: keySet){
-      bytesList.add(key.getBytes());
-    }
-
-    Collections.sort(bytesList, new BytesComparator());
-    for (byte[] key: bytesList){
+    for (String key: map.keySet()){
       packString(key);
-      packObject(map.get(new String(key)));
+      packObject(map.get(key));
     }
 
     buffer.putInt(position, buffer.position()-position - 4);

@@ -361,23 +361,28 @@ public class Deserializer {
 
       if (strLen > 0){
         buffer.getBytes(tmpBytes, strLen);
-        comp = BytesComparator.compare(tmpBytes, strLen, keyBytes, keyBytes.length);
-      }else {
-        comp = -1;
       }
 
-      if (comp < 0) {
-        skipValue();
-        continue;
-      }else if (comp > 0) {
-        return -1;
+      if (bytesEquals(tmpBytes, strLen, keyBytes, keyBytes.length)){
+        return buffer.position();
       }
-
-      //get value
-      return buffer.position();
     }
 
     return -1;
+  }
+
+  private static boolean bytesEquals(byte[] o1, int len1, byte[] o2, int len2){
+    if (len1 != len2){
+      return false;
+    }
+
+    for (int i=0; i < len2; i++){
+      if (o1[i] != o2[i]) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   public void skipValue() throws Exception {
