@@ -365,6 +365,8 @@ public class Deserializer {
 
       if (bytesEquals(tmpBytes, strLen, keyBytes, keyBytes.length)){
         return buffer.position();
+      }else {
+        skipValue();
       }
     }
 
