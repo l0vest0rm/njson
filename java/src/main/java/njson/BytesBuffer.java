@@ -21,7 +21,7 @@ import java.nio.BufferUnderflowException;
 
 // Created by xuning on 2017/5/28
 
-public class BytesOp {
+public class BytesBuffer {
 
   private byte[] bs;
   private boolean bigEndian;
@@ -29,7 +29,7 @@ public class BytesOp {
   private int position; //op index of bs(offset<=postion<end)
   private int end; //end of bs
 
-  public BytesOp(){
+  public BytesBuffer(){
   }
 
   public void init(){

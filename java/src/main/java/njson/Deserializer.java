@@ -12,12 +12,12 @@ public class Deserializer {
   /**
    * Current internal buffer.
    */
-  protected BytesOp buffer;
+  protected BytesBuffer buffer;
   int delimiter = '.';
   byte[] tmpBytes;
 
   public Deserializer(){
-    buffer = new BytesOp();
+    buffer = new BytesBuffer();
     tmpBytes = new byte[TMP_BUFF_SISZE];
   }
 

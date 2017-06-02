@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.MalformedInputException;
 import java.util.*;
+import java.math.BigDecimal;
 
 import static njson.Code.*;
 
@@ -33,7 +34,7 @@ public class Serializer {
   /**
    * Current internal buffer.
    */
-  private BytesOp buffer;
+  private BytesBuffer buffer;
 
   public Serializer()
   {
@@ -43,7 +44,7 @@ public class Serializer {
   public Serializer(int minimumSize)
   {
     byte[] bytes = new byte[minimumSize];
-    buffer = new BytesOp();
+    buffer = new BytesBuffer();
     buffer.init(bytes);
     buffer.setBigEndian(true);
     this.bytes = new byte[minimumSize];
@@ -566,19 +567,19 @@ public class Serializer {
     packHeader();
 
     if (v instanceof List) {
-      packList((List<Object>) v);
+      packArray((Collection<Object>) v);
     }
     else if (v instanceof Map) {
       packMap((Map<String, Object>) v);
     }
     else {
-      throw new Exception(String.format("unknown class:%s", this.getClass().getSimpleName()));
+      throw new Exception(String.format("unknown class:%s", v.getClass().getName()));
     }
 
     return this;
   }
 
-  public Serializer packList(List<Object> objs) throws Exception {
+  public Serializer packArray(Collection<Object> objs) throws Exception {
     int position = reserveArrayHeader();
     for (Object v: objs){
       packObject(v);
@@ -605,7 +606,7 @@ public class Serializer {
     return this;
   }
 
-  public Serializer packObject(Object v) throws Exception {
+  private Serializer packObject(Object v) throws Exception {
     if (v == null) {
       packNil();
     }else if (v instanceof String) {
@@ -615,32 +616,42 @@ public class Serializer {
     }else if (v instanceof Long) {
       packLong((long) v);
     }else if (v instanceof Float) {
-      if ((float)v == (float)(int)(float)v){
+      if ((float)v == (float)(int)(float)v) {
         packInt((int) v);
       }else {
         packFloat((float) v);
       }
     }else if (v instanceof Double) {
-      if ((double)v == (double)(int)(double)v){
+      if ((double)v == (double)(int)(double)v) {
         packInt((int)(double) v);
       }else if ((double)v == (double)(long)(double)v) {
         packLong((long)(double) v);
-      }else if ((double)v == (double)(float)(double)v){
+      }else if ((double)v == (double)(float)(double)v) {
         packFloat((float)(double) v);
       }else{
         packDouble((double)v);
+      }
+    }else if (v instanceof BigDecimal) {
+      if (((BigDecimal)v).doubleValue() == (double)((BigDecimal)v).intValue()){
+        packInt(((BigDecimal)v).intValue());
+      }else if (((BigDecimal)v).doubleValue() == (double)((BigDecimal)v).longValue()) {
+        packLong(((BigDecimal)v).longValue());
+      }else if (((BigDecimal)v).doubleValue() == (double)((BigDecimal)v).floatValue()){
+        packFloat(((BigDecimal)v).floatValue());
+      }else{
+        packDouble(((BigDecimal)v).doubleValue());
       }
     }else if (v instanceof BigInteger) {
       packBigInteger((BigInteger) v);
     }else if (v instanceof Boolean) {
       packBoolean((Boolean) v);
-    }else if (v instanceof List) {
-      packList((List<Object>) v);
+    }else if (v instanceof Collection) {
+      packArray((Collection<Object>) v);
     }else if (v instanceof Map) {
       packMap((Map<String, Object>) v);
     }
     else {
-      throw new Exception(String.format("unknown class:%s", this.getClass().getSimpleName()));
+      throw new Exception(String.format("unknown class:%s", v.getClass().getName()));
     }
 
     return this;
