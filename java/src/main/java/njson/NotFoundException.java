@@ -18,7 +18,7 @@ package njson;
 
 // Created by xuning on 2017/5/29
 
-public class NotFoundException extends RuntimeException {
+public final class NotFoundException extends RuntimeException {
   public NotFoundException() {
     super();
   }

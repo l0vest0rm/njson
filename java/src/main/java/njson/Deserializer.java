@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Collection;
 import java.util.Map;
 
-public class Deserializer {
+public final class Deserializer {
   private static final int TMP_BUFF_SISZE = 1024*1024;
   private static final int DEFAULT_INITIAL_CAPACITY = 16;
 

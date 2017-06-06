@@ -18,7 +18,7 @@ package njson;
 
 // Created by xuning on 2017/5/29
 
-public class NullException extends RuntimeException {
+public final class NullException extends RuntimeException {
   public NullException() {
     super();
   }

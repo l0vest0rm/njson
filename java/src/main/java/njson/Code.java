@@ -18,7 +18,7 @@ package njson;
 
 // Created by xuning on 2017/5/28
 
-public class Code {
+public final class Code {
   public static final byte SER_VERSION = (byte) 0x01;
   public static final int HEADER_LENGTH = 2;
   public static final byte BIGENDIAN_MASK = (byte) 0x01;

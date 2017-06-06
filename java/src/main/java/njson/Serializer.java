@@ -26,7 +26,7 @@ import java.math.BigDecimal;
 
 import static njson.Code.*;
 
-public class Serializer {
+public final class Serializer {
   private static final int INIT_BUFF_SIZE = 1024*1024;
 
   private byte[] bytes;

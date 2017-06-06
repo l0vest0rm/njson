@@ -18,7 +18,7 @@ package njson;
 
 // Created by xuning on 2017/5/29
 
-public class FormatException extends RuntimeException {
+public final class FormatException extends RuntimeException {
   public FormatException() {
     super();
   }

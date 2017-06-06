@@ -21,7 +21,7 @@ import java.nio.BufferUnderflowException;
 
 // Created by xuning on 2017/5/28
 
-public class BytesBuffer {
+public final class BytesBuffer {
 
   private byte[] bs;
   private boolean bigEndian;
