@@ -19,26 +19,25 @@ package njson;
 // Created by xuning on 2017/5/29
 
 public final class NotFoundException extends RuntimeException {
-  public NotFoundException() {
-    super();
-  }
+    public static final IllegalStateException UNREACHABLE = new IllegalStateException("Cannot reach here");
 
-  public NotFoundException(String message) {
-    super(message);
-  }
+    public NotFoundException() {
+        super();
+    }
 
-  public NotFoundException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public NotFoundException(String message) {
+        super(message);
+    }
 
-  public NotFoundException(Throwable cause) {
-    super(cause);
-  }
+    public NotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  public static UnsupportedOperationException UNSUPPORTED(String operationName)
-  {
-    return new UnsupportedOperationException(operationName);
-  }
+    public NotFoundException(Throwable cause) {
+        super(cause);
+    }
 
-  public static final IllegalStateException UNREACHABLE = new IllegalStateException("Cannot reach here");
+    public static UnsupportedOperationException UNSUPPORTED(String operationName) {
+        return new UnsupportedOperationException(operationName);
+    }
 }

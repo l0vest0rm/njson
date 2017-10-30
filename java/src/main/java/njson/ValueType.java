@@ -19,77 +19,65 @@ package njson;
 // Created by xuning on 2017/5/28
 
 public enum ValueType {
-  NIL(false, false),
-  BOOLEAN(false, false),
-  INTEGER(true, false),
-  FLOAT(true, false),
-  STRING(false, true),
-  BINARY(false, true),
-  ARRAY(false, false),
-  MAP(false, false),
-  EXTENSION(false, false);
+    NIL(false, false),
+    BOOLEAN(false, false),
+    INTEGER(true, false),
+    FLOAT(true, false),
+    STRING(false, true),
+    BINARY(false, true),
+    ARRAY(false, false),
+    MAP(false, false),
+    EXTENSION(false, false);
 
-  private final boolean numberType;
-  private final boolean rawType;
+    private final boolean numberType;
+    private final boolean rawType;
 
-  private ValueType(boolean numberType, boolean rawType)
-  {
-    this.numberType = numberType;
-    this.rawType = rawType;
-  }
+    private ValueType(boolean numberType, boolean rawType) {
+        this.numberType = numberType;
+        this.rawType = rawType;
+    }
 
-  public boolean isNilType()
-  {
-    return this == NIL;
-  }
+    public boolean isNilType() {
+        return this == NIL;
+    }
 
-  public boolean isBooleanType()
-  {
-    return this == BOOLEAN;
-  }
+    public boolean isBooleanType() {
+        return this == BOOLEAN;
+    }
 
-  public boolean isNumberType()
-  {
-    return numberType;
-  }
+    public boolean isNumberType() {
+        return numberType;
+    }
 
-  public boolean isIntegerType()
-  {
-    return this == INTEGER;
-  }
+    public boolean isIntegerType() {
+        return this == INTEGER;
+    }
 
-  public boolean isFloatType()
-  {
-    return this == FLOAT;
-  }
+    public boolean isFloatType() {
+        return this == FLOAT;
+    }
 
-  public boolean isRawType()
-  {
-    return rawType;
-  }
+    public boolean isRawType() {
+        return rawType;
+    }
 
-  public boolean isStringType()
-  {
-    return this == STRING;
-  }
+    public boolean isStringType() {
+        return this == STRING;
+    }
 
-  public boolean isBinaryType()
-  {
-    return this == BINARY;
-  }
+    public boolean isBinaryType() {
+        return this == BINARY;
+    }
 
-  public boolean isArrayType()
-  {
-    return this == ARRAY;
-  }
+    public boolean isArrayType() {
+        return this == ARRAY;
+    }
 
-  public boolean isMapType()
-  {
-    return this == MAP;
-  }
+    public boolean isMapType() {
+        return this == MAP;
+    }
 
-  public boolean isExtensionType()
-  {
-    return this == EXTENSION;
-  }
+    public boolean isExtensionType() {
+        return this == EXTENSION;
+    }
 }

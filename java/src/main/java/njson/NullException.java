@@ -19,26 +19,25 @@ package njson;
 // Created by xuning on 2017/5/29
 
 public final class NullException extends RuntimeException {
-  public NullException() {
-    super();
-  }
+    public static final IllegalStateException UNREACHABLE = new IllegalStateException("Cannot reach here");
 
-  public NullException(String message) {
-    super(message);
-  }
+    public NullException() {
+        super();
+    }
 
-  public NullException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public NullException(String message) {
+        super(message);
+    }
 
-  public NullException(Throwable cause) {
-    super(cause);
-  }
+    public NullException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  public static UnsupportedOperationException UNSUPPORTED(String operationName)
-  {
-    return new UnsupportedOperationException(operationName);
-  }
+    public NullException(Throwable cause) {
+        super(cause);
+    }
 
-  public static final IllegalStateException UNREACHABLE = new IllegalStateException("Cannot reach here");
+    public static UnsupportedOperationException UNSUPPORTED(String operationName) {
+        return new UnsupportedOperationException(operationName);
+    }
 }

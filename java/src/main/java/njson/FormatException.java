@@ -19,30 +19,29 @@ package njson;
 // Created by xuning on 2017/5/29
 
 public final class FormatException extends RuntimeException {
-  public FormatException() {
-    super();
-  }
+    public static final IllegalStateException UNREACHABLE = new IllegalStateException("Cannot reach here");
 
-  public FormatException(String message) {
-    super(message);
-  }
+    public FormatException() {
+        super();
+    }
 
-  public FormatException(Format f) {
-    super(String.format("format %s unsupport", f.toString()));
-  }
+    public FormatException(String message) {
+        super(message);
+    }
 
-  public FormatException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public FormatException(Format f) {
+        super(String.format("format %s unsupport", f.toString()));
+    }
 
-  public FormatException(Throwable cause) {
-    super(cause);
-  }
+    public FormatException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  public static UnsupportedOperationException UNSUPPORTED(String operationName)
-  {
-    return new UnsupportedOperationException(operationName);
-  }
+    public FormatException(Throwable cause) {
+        super(cause);
+    }
 
-  public static final IllegalStateException UNREACHABLE = new IllegalStateException("Cannot reach here");
+    public static UnsupportedOperationException UNSUPPORTED(String operationName) {
+        return new UnsupportedOperationException(operationName);
+    }
 }
